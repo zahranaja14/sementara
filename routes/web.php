@@ -42,7 +42,7 @@ Route::get('/dashboard', function () {
     
     $categories = \App\Models\Category::all();
     return view('dashboard', compact('products', 'categories'));
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware('auth')->name('dashboard');
 
 // Auth & Transaksi Umum
 Route::middleware('auth')->group(function () {

@@ -9,9 +9,9 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        // Cek: Apakah user sudah login DAN dia punya akses admin?
+        // Cek apakah user sudah login DAN apakah dia seorang admin (is_admin = 1)
         if (auth()->check() && auth()->user()->is_admin == 1) {
-            return $next($request); // Kalau admin, silakan masuk
+            return $next($request);
         }
 
         // Kalau bukan admin, tendang ke dashboard biasa

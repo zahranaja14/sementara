@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Seed default categories
-        $categories = ['Elektronik', 'Pakaian', 'Buku', 'Otomotif', 'Lain-lain'];
+        $categories = ['Jaket', 'T-shirt', 'Sepatu'];
         foreach ($categories as $name) {
             \App\Models\Category::firstOrCreate(['name' => $name]);
         }

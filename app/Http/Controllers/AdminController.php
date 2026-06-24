@@ -25,9 +25,33 @@ class AdminController extends Controller
     public function verify(Request $request, $id)
     {
         $order = Order::findOrFail($id);
-        $order->status = $request->status; // 'lunas' atau 'dibatalkan'
-        $order->save();
+        
+        $request->validate([
+            'status' => 'required|in:lunas,dibatalkan',
+        ]);
 
-        return redirect('/admin/dashboard')->with('success', 'Status pesanan berhasil diupdate!');
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($order, $request) {
+                if ($request->status === 'lunas') {
+                    $order->update(['status' => 'lunas']);
+
+                    // Kurangi stok produk yang dibeli
+                    foreach ($order->orderDetails as $detail) {
+                        $product = $detail->product;
+                        if ($product->stok >= $detail->jumlah) {
+                            $product->decrement('stok', $detail->jumlah);
+                        } else {
+                            throw new \Exception("Stok untuk produk '{$product->nama_produk}' tidak mencukupi.");
+                        }
+                    }
+                } else {
+                    $order->update(['status' => 'dibatalkan']);
+                }
+            });
+
+            return redirect('/admin/dashboard')->with('success', 'Status pesanan berhasil diupdate!');
+        } catch (\Exception $e) {
+            return redirect('/admin/dashboard')->with('error', $e->getMessage());
+        }
     }
 }
